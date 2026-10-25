@@ -1,0 +1,37 @@
+name: Test
+
+# Builds every formula from source on Apple Silicon and Intel, runs its
+# test and the audit.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  formula:
+    name: ${{ matrix.formula }} (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        formula: [pipeline-monitor]
+        runner: [macos-latest, macos-15-intel]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tap this repository
+        run: brew tap imgbit/tap "$GITHUB_WORKSPACE"
+      - name: Audit
+        run: brew audit --strict --online imgbit/tap/${{ matrix.formula }}
+      - name: Install
+        run: brew install --build-from-source --verbose imgbit/tap/${{ matrix.formula }}
+      - name: Test
+        run: brew test --verbose imgbit/tap/${{ matrix.formula }}
+      - name: Use
+        if: matrix.formula == 'pipeline-monitor'
+        run: |
+          export GST_PLUGIN_PATH="$(brew --prefix)/lib/gstreamer-1.0"
+          GST_TRACERS=pipeline-monitor gst-launch-1.0 fakesrc num-buffers=1 ! \
+            fakesink 2>&1 | tee run.log
+          grep -q "pipeline-monitor: http://127.0.0.1:" run.log
