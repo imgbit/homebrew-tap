@@ -8,7 +8,7 @@ class PipelineMonitor < Formula
 
   depends_on "meson" => :build
   depends_on "ninja" => :build
-  depends_on "pkgconf" => :build
+  depends_on "pkgconf" => [:build, :test]
   depends_on "glib"
   depends_on "gstreamer"
   depends_on "json-glib"
@@ -31,8 +31,26 @@ class PipelineMonitor < Formula
   end
 
   test do
-    ENV["GST_PLUGIN_PATH"] = lib/"gstreamer-1.0"
-    assert_match "pipeline-monitor",
-      shell_output("#{formula_opt_bin("gstreamer")}/gst-inspect-1.0 pipeline-monitor")
+    # Not gst-inspect-1.0: on macOS it starts NSApplication and hangs here.
+    (testpath/"load.c").write <<~C
+      #include <gst/gst.h>
+      int main (int argc, char **argv) {
+        GError *error = NULL;
+        GstPlugin *plugin;
+        gst_init (&argc, &argv);
+        plugin = gst_plugin_load_file (argv[1], &error);
+        if (plugin == NULL) {
+          g_printerr ("%s\n", error->message);
+          return 1;
+        }
+        g_print ("%s %s\n", gst_plugin_get_name (plugin),
+            gst_plugin_get_version (plugin));
+        return 0;
+      }
+    C
+    flags = shell_output("pkgconf --cflags --libs gstreamer-1.0").chomp.split
+    system ENV.cc, "load.c", "-o", "load", *flags
+    plugin = lib/"gstreamer-1.0"/shared_library("libgstpipelinemonitor")
+    assert_match "pipelinemonitor #{version}", shell_output("./load #{plugin}")
   end
 end
