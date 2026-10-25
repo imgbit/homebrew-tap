@@ -40,10 +40,10 @@ class PipelineMonitor < Formula
         gst_init (&argc, &argv);
         plugin = gst_plugin_load_file (argv[1], &error);
         if (plugin == NULL) {
-          g_printerr ("%s\n", error->message);
+          g_printerr ("%s\\n", error->message);
           return 1;
         }
-        g_print ("%s %s\n", gst_plugin_get_name (plugin),
+        g_print ("%s %s\\n", gst_plugin_get_name (plugin),
             gst_plugin_get_version (plugin));
         return 0;
       }
