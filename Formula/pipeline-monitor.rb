@@ -33,6 +33,6 @@ class PipelineMonitor < Formula
   test do
     ENV["GST_PLUGIN_PATH"] = lib/"gstreamer-1.0"
     assert_match "pipeline-monitor",
-      shell_output("#{Formula["gstreamer"].opt_bin}/gst-inspect-1.0 pipeline-monitor")
+      shell_output("#{formula_opt_bin("gstreamer")}/gst-inspect-1.0 pipeline-monitor")
   end
 end
