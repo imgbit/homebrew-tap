@@ -22,6 +22,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Tap this repository
         run: brew tap imgbit/tap "$GITHUB_WORKSPACE"
+      # Homebrew 7 loads formulae of other taps only once they are trusted.
+      - name: Trust it
+        run: if brew help trust > /dev/null 2>&1; then brew trust imgbit/tap; fi
       - name: Audit
         run: brew audit --strict --online imgbit/tap/${{ matrix.formula }}
       - name: Install
@@ -35,3 +38,22 @@ jobs:
           GST_TRACERS=pipeline-monitor gst-launch-1.0 fakesrc num-buffers=1 ! \
             fakesink 2>&1 | tee run.log
           grep -q "pipeline-monitor: http://127.0.0.1:" run.log
+
+  # What a user needs on the newest Homebrew, with the tap from GitHub.
+  user-steps:
+    name: user steps (macos-latest)
+    if: github.event_name != 'pull_request'
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Tap by name, then load the formula
+        run: |
+          brew --version
+          brew tap imgbit/tap
+          if brew info imgbit/tap/pipeline-monitor; then
+            echo "USER-STEPS: brew tap is enough"
+          else
+            echo "USER-STEPS: brew tap and brew trust are needed"
+            brew trust imgbit/tap
+            brew info imgbit/tap/pipeline-monitor
+          fi
