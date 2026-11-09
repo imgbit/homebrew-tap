@@ -1,8 +1,8 @@
 class PipelineMonitor < Formula
   desc "See a running GStreamer pipeline live in your browser"
   homepage "https://github.com/imgbit/pipeline-monitor"
-  url "https://github.com/imgbit/pipeline-monitor/archive/refs/tags/v0.9.0.tar.gz"
-  sha256 "1f67c102b189260d32eeacb17ea2ef95ae03a6b95da34157b1f20cd233bac04e"
+  url "https://github.com/imgbit/pipeline-monitor/archive/refs/tags/v0.10.0.tar.gz"
+  sha256 "5c52c16240ca7967889518fd0afc58d8d0a6870906b7d71a2adbb37542a09f54"
   license "LGPL-2.1-or-later"
   head "https://github.com/imgbit/pipeline-monitor.git", branch: "main"
 
@@ -27,6 +27,8 @@ class PipelineMonitor < Formula
       Then run a program with GST_TRACERS=pipeline-monitor and open the
       address it prints, e.g.
         GST_TRACERS=pipeline-monitor gst-launch-1.0 videotestsrc ! autovideosink
+      To open recordings without a program, run pipeline-monitor
+      (or pipeline-monitor open FILE.jsonl).
     EOS
   end
 
@@ -52,5 +54,7 @@ class PipelineMonitor < Formula
     system ENV.cc, "load.c", "-o", "load", *flags
     plugin = lib/"gstreamer-1.0"/shared_library("libgstpipelinemonitor")
     assert_match "pipelinemonitor #{version}", shell_output("./load #{plugin}")
+    assert_match "pipeline-monitor #{version}",
+                 shell_output("#{bin}/pipeline-monitor --version")
   end
 end
