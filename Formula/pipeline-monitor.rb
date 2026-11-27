@@ -1,8 +1,8 @@
 class PipelineMonitor < Formula
   desc "See a running GStreamer pipeline live in your browser"
   homepage "https://github.com/imgbit/pipeline-monitor"
-  url "https://github.com/imgbit/pipeline-monitor/archive/refs/tags/v0.13.0.tar.gz"
-  sha256 "b76d00176930ed73384d6542fee5235d573ee63d7a3b2a31645e3b6ea512fe91"
+  url "https://github.com/imgbit/pipeline-monitor/archive/refs/tags/v0.14.0.tar.gz"
+  sha256 "d8d835a445c52cd2cf42f03a89e5caba4e7c0f34e0826ac379c9b2ae3b7b59cb"
   license "LGPL-2.1-or-later"
   head "https://github.com/imgbit/pipeline-monitor.git", branch: "main"
 
